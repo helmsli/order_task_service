@@ -13,9 +13,37 @@ public class OrderTaskPool {
 	
 	private ThreadPoolExecutor notifyTaskPool = null;
 	
+	private int threadPoolQueneSize;
 	
-	public OrderTaskPool(int threadPoolMaxSize,int threadPoolInitSize,int threadPoolKeepAliveTime,int threadPoolQueneSize)
+	private int maxThreadSize;
+	
+	/**
+	 * 返回工作线程空闲队列个数
+	 * @return
+	 */
+	public int getWorkQueueFreeSize() {
+		return threadPoolQueneSize - workQueue.size();
+	}
+	
+	
+	
+	public int getThreadPoolQueneSize() {
+		return threadPoolQueneSize;
+	}
+
+
+
+	
+
+
+	public int getMaxThreadSize() {
+		return maxThreadSize;
+	}
+	
+	public OrderTaskPool(int threadPoolInitSize,int threadPoolMaxSize,int threadPoolKeepAliveTime,int threadPoolQueneSize)
 	{
+		this.threadPoolQueneSize=threadPoolQueneSize;
+		maxThreadSize=threadPoolMaxSize;
 		workQueue =new ArrayBlockingQueue<Runnable>(threadPoolQueneSize);
 		notifyTaskPool = new ThreadPoolExecutor(threadPoolInitSize, threadPoolMaxSize, threadPoolKeepAliveTime, TimeUnit.SECONDS,workQueue);
 	
