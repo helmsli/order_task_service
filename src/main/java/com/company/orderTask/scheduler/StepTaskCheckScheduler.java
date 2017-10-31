@@ -64,6 +64,9 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	private int schedulerQueneSize;
 	
 	
+	@Value("${order.task.runningNotifyUrl}")
+	private String orderTaskRunningNotifyUrl;
+	
 	private boolean isInit = false;
 	
 	 @Autowired  
@@ -179,7 +182,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				taskObject.setSchedulerNumber(schedulerNumber);
 				taskObject.setSchedulerThreadPool(this.schedulerTaskPool);
 				taskObject.setOrderFlowStepdef(orderFlowStepdef);
-				
+				taskObject.setTaskImmediateNotifyUrl(orderTaskRunningNotifyUrl);
 				taskObject.setDbOrderTaskService(dbOrderTaskService);
 				taskObject.setOrderDefService(orderDefService);
 				scheduler.schedule(taskObject, trigger);
@@ -206,6 +209,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				taskObject.setOrderFlowStepdef(orderFlowStepdef);
 				taskObject.setDbOrderTaskService(dbOrderTaskService);
 				taskObject.setOrderDefService(orderDefService);
+				taskObject.setTaskImmediateNotifyUrl(orderTaskRunningNotifyUrl);
 				scheduler.schedule(taskObject, trigger);
 				cronMap.put(orderFlowStepdef.getStepId()+"in:2", taskObject);
 			}

@@ -1,5 +1,7 @@
 package com.company.orderTask.scheduler;
 
+import org.springframework.web.client.RestTemplate;
+
 import com.company.orderAccess.serverManager.impl.DbOrderTaskService;
 import com.company.orderAccess.serverManager.impl.RedisOrderTaskService;
 import com.company.orderDef.service.OrderDefService;
@@ -7,6 +9,7 @@ import com.company.orderTask.domain.OrderTaskInDef;
 import com.xinwei.orderDb.domain.OrderFlowStepdef;
 
 public class OrderBaseTask implements Runnable {
+
 	protected RedisOrderTaskService redisOrderTaskService;
 	protected OrderTaskInDef orderTaskInDef;
 	protected int schedulerNumber=10;
@@ -16,6 +19,11 @@ public class OrderBaseTask implements Runnable {
 	
 	protected OrderDefService orderDefService;
 	protected DbOrderTaskService dbOrderTaskService;
+	
+	protected  RestTemplate restTemplate=null;
+	
+	protected String taskImmediateNotifyUrl=null;
+	
 	
 	public void setOrderBaseTalk(OrderBaseTask srcOrderTask)
 	{
@@ -27,9 +35,32 @@ public class OrderBaseTask implements Runnable {
 		this.orderTaskPool=srcOrderTask.orderTaskPool;
 		this.orderFlowStepdef=srcOrderTask.orderFlowStepdef;
 		this.orderDefService=srcOrderTask.orderDefService;
-		this.dbOrderTaskService = dbOrderTaskService;
+		this.dbOrderTaskService = srcOrderTask.dbOrderTaskService;
+		this.restTemplate = srcOrderTask.restTemplate;
+		this.taskImmediateNotifyUrl = srcOrderTask.taskImmediateNotifyUrl;
 	}
 	
+	
+	public RestTemplate getRestTemplate() {
+		return restTemplate;
+	}
+
+
+	public void setRestTemplate(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
+
+
+	public String getTaskImmediateNotifyUrl() {
+		return taskImmediateNotifyUrl;
+	}
+
+
+	public void setTaskImmediateNotifyUrl(String taskImmediateNotifyUrl) {
+		this.taskImmediateNotifyUrl = taskImmediateNotifyUrl;
+	}
+
+
 	public RedisOrderTaskService getRedisOrderTaskService() {
 		return redisOrderTaskService;
 	}
