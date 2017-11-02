@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
-
+/*
 public class SpringScheduler implements SchedulingConfigurer{
 	 @Autowired  
 	 private ApplicationContext context;
@@ -71,3 +71,4 @@ public class SpringScheduler implements SchedulingConfigurer{
 		ScheduledFuture<Object> scedulefuture = scheduler.schedule(taskObject, trigger);  
 	}
 }
+*/

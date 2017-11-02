@@ -12,7 +12,7 @@ public class OrderBaseTask implements Runnable {
 
 	protected RedisOrderTaskService redisOrderTaskService;
 	protected OrderTaskInDef orderTaskInDef;
-	protected int schedulerNumber=10;
+	protected int redoNumberOnecTime=10;
 	protected OrderTaskPool schedulerThreadPool;
 	protected OrderTaskPool orderTaskPool;
 	protected OrderFlowStepdef orderFlowStepdef;
@@ -30,7 +30,7 @@ public class OrderBaseTask implements Runnable {
 		this.redisOrderTaskService = srcOrderTask.redisOrderTaskService;
 		
 		this.orderTaskInDef=srcOrderTask.orderTaskInDef;
-		this.schedulerNumber=srcOrderTask.schedulerNumber;
+		this.redoNumberOnecTime=srcOrderTask.redoNumberOnecTime;
 		this.schedulerThreadPool=srcOrderTask.schedulerThreadPool;
 		this.orderTaskPool=srcOrderTask.orderTaskPool;
 		this.orderFlowStepdef=srcOrderTask.orderFlowStepdef;
@@ -85,16 +85,18 @@ public class OrderBaseTask implements Runnable {
 
 
 
-	public int getSchedulerNumber() {
-		return schedulerNumber;
+	
+
+
+
+	public int getRedoNumberOnecTime() {
+		return redoNumberOnecTime;
 	}
 
 
-
-	public void setSchedulerNumber(int schedulerNumber) {
-		this.schedulerNumber = schedulerNumber;
+	public void setRedoNumberOnecTime(int redoNumberOnecTime) {
+		this.redoNumberOnecTime = redoNumberOnecTime;
 	}
-
 
 
 	public OrderTaskPool getSchedulerThreadPool() {

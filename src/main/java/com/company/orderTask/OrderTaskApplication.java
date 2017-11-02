@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
+import com.company.orderAccess.serverManager.impl.DbOrderTaskService;
 import com.company.orderAccess.serverManager.impl.RedisOrderTaskService;
 
 @SpringBootApplication
@@ -19,10 +20,10 @@ import com.company.orderAccess.serverManager.impl.RedisOrderTaskService;
 @EnableAutoConfiguration
 //@EnableRedisHttpSession
 //@EnableRedisHttpSession 
-@ComponentScan ("com.company.security")
-@MapperScan ("com.company.security.mapper")
+@ComponentScan ("com.company.orderTask")
+//@MapperScan ("com.company.security.mapper")
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 86400*30)
-@Import({RedisOrderTaskService.class})
+@Import({RedisOrderTaskService.class,DbOrderTaskService.class})
 public class OrderTaskApplication {
     public static  ApplicationContext  app = null;
 	public static void main(String[] args) {

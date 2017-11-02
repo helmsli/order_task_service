@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.company.orderAccess.serverManager.impl.DbOrderTaskService;
 import com.company.orderAccess.serverManager.impl.RedisOrderTaskService;
@@ -32,12 +35,14 @@ import com.xinwei.orderDb.domain.OrderFlowStepdef;
 @Component
 @EnableScheduling
 public class StepTaskCheckScheduler implements InitializingBean{
+	private Logger log = LoggerFactory.getLogger(getClass());
 	
+	//该进程调度哪种类型的订单
 	@Value("${order.task.category}")
 	private String orderTaskCategory;
 	
-	@Value("${order.task.schedulerNumber}")
-	private int schedulerNumber;
+	@Value("${order.task.redoNumberOnecTimes:1000}")
+	private int redoNumberOnecTime;
 	
 	@Value("${order.task.step:all}")
 	private String orderTaskStep;
@@ -69,6 +74,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	
 	private boolean isInit = false;
 	
+	private RestTemplate restTemplate = new RestTemplate();
 	 @Autowired  
 	 private ApplicationContext context;
 
@@ -86,7 +92,18 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	public void checkTaskController()
 	{
 		try {
-		
+			log.debug("checkTaskController ");
+			if(!isInit)
+			{
+				try {
+					initStepRunInTask();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					log.error("system will exit:",e);
+					//System.exit(0);
+				}
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,14 +139,14 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	{
 		//获取配置文件的步骤信息，格式为，分割等多个步骤，如果填写all为全部不厚
 		Map<String,String> stepMaps = this.getScheculerStep();
-		if(stepMaps.size()==0)
+		if(stepMaps!=null && stepMaps.size()==0)
 		{
 			return false;
 		}
 		//将服务对象转化为数据库对象
 		OrderDefService orderDefService =(OrderDefService)orderTaskScheduler;
 		//获取流程定义
-		OrderFlowDef orderFlowDef= orderDefService.getOrderDef(orderTaskCategory, "");
+		OrderFlowDef orderFlowDef= orderDefService.getOrderDef(orderTaskCategory, "default");
 		//获取该订单的多有步骤信息
 		List<OrderFlowStepdef> orderStepList = orderDefService.getOrderStepDef(orderTaskCategory,"");
 		for(int i=0;i<orderStepList.size();i++)
@@ -148,7 +165,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 			//如果步骤的runin信息不为空
 			if(!StringUtils.isEmpty(orderFlowStepdef.getRunInfo()))
 			{
-				OrderTaskInDef orderTaskInDef = JsonUtil.fromJson(orderFlowStepdef.getRunInfo(),OrderTaskInDef.class);
+				OrderTaskInDef orderTaskInDef = JsonUtil.fromJson(orderFlowStepdef.getTaskIn(),OrderTaskInDef.class);
 				createCronTaskIn(orderFlowStepdef,orderTaskInDef);
 			}
 		}
@@ -173,18 +190,19 @@ public class StepTaskCheckScheduler implements InitializingBean{
 			{
 				orderTaskPool = new OrderTaskPool(orderTaskInDef.getInitThreadNumber(),orderTaskInDef.getMaxThreadNumber(),orderTaskInDef.getKeepAliveTime(),orderTaskInDef.getQueneSize());
 				//创建线程任务；
-				ThreadPoolTaskScheduler scheduler = (ThreadPoolTaskScheduler) context.getBean("scheduler");  
+				ThreadPoolTaskScheduler scheduler = (ThreadPoolTaskScheduler) context.getBean("threadPoolTaskScheduler");  
 				CronTrigger trigger = new CronTrigger(orderTaskInDef.getRunExpress()); // Every 5 minutes  
 				CronTask taskObject=new CronTask();
 				taskObject.setOrderTaskPool(orderTaskPool);
 				taskObject.setOrderTaskInDef(orderTaskInDef);
 				taskObject.setRedisOrderTaskService(redisOrderTaskService);
-				taskObject.setSchedulerNumber(schedulerNumber);
+				taskObject.setRedoNumberOnecTime(redoNumberOnecTime);
 				taskObject.setSchedulerThreadPool(this.schedulerTaskPool);
 				taskObject.setOrderFlowStepdef(orderFlowStepdef);
 				taskObject.setTaskImmediateNotifyUrl(orderTaskRunningNotifyUrl);
 				taskObject.setDbOrderTaskService(dbOrderTaskService);
 				taskObject.setOrderDefService(orderDefService);
+				taskObject.setRestTemplate(restTemplate);
 				scheduler.schedule(taskObject, trigger);
 				cronMap.put(orderFlowStepdef.getStepId()+"in:1", taskObject);
 			}
@@ -198,17 +216,18 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				{
 					orderTaskPool = new OrderTaskPool(orderTaskInDef.getInitThreadNumber(),orderTaskInDef.getMaxThreadNumber(),orderTaskInDef.getKeepAliveTime(),orderTaskInDef.getQueneSize());
 				}
-				ThreadPoolTaskScheduler scheduler = (ThreadPoolTaskScheduler) context.getBean("scheduler");  
+				ThreadPoolTaskScheduler scheduler = (ThreadPoolTaskScheduler) context.getBean("threadPoolTaskScheduler");  
 				CronTrigger trigger = new CronTrigger(orderTaskInDef.getRetryExpress()); // Every 5 minutes  
 				CronTask taskObject=new CronRetryTalk();
 				taskObject.setOrderTaskPool(orderTaskPool);
 				taskObject.setOrderTaskInDef(orderTaskInDef);
 				taskObject.setRedisOrderTaskService(redisOrderTaskService);
-				taskObject.setSchedulerNumber(schedulerNumber);
+				taskObject.setRedoNumberOnecTime(redoNumberOnecTime);
 				taskObject.setSchedulerThreadPool(this.schedulerTaskPool);
 				taskObject.setOrderFlowStepdef(orderFlowStepdef);
 				taskObject.setDbOrderTaskService(dbOrderTaskService);
 				taskObject.setOrderDefService(orderDefService);
+				taskObject.setRestTemplate(restTemplate);
 				taskObject.setTaskImmediateNotifyUrl(orderTaskRunningNotifyUrl);
 				scheduler.schedule(taskObject, trigger);
 				cronMap.put(orderFlowStepdef.getStepId()+"in:2", taskObject);
