@@ -1,6 +1,5 @@
 package com.company.orderTask.scheduler;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +31,7 @@ import com.xinwei.nnl.common.util.JsonUtil;
 import com.xinwei.orderDb.domain.OrderFlowDef;
 import com.xinwei.orderDb.domain.OrderFlowStepdef;
 
-@Component
+@Component("stepTaskCheckScheduler")
 @EnableScheduling
 public class StepTaskCheckScheduler implements InitializingBean{
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -58,7 +57,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	
 	@Value("${order.task.maxSchedulerThread:5}")
 	private int maxSchedulerThread;
-	
+	//后续需要保证每一步的任务调度是均等的，即如果某一步的任务过多会侵占别的任务
 	@Value("${order.task.initSchedulerThread:5}")
 	private int initSchedulerThread;
 	
@@ -73,8 +72,8 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	private String orderTaskRunningNotifyUrl;
 	
 	private boolean isInit = false;
-	
-	private RestTemplate restTemplate = new RestTemplate();
+	@Autowired
+	private RestTemplate restTemplate;
 	 @Autowired  
 	 private ApplicationContext context;
 
@@ -110,6 +109,34 @@ public class StepTaskCheckScheduler implements InitializingBean{
 		}
 		
 		
+	}
+	
+	/**
+	 * 立即执行任务
+	 * @param category
+	 * @param step
+	 * @return
+	 */
+	public boolean immediateRunTask(String category,String step)
+	{
+		String key = this.getRunTaskkey(category, step);
+		if(this.cronMap.containsKey(key))
+		{
+			CronTask cronTask = this.cronMap.get(key);
+			cronTask.run();
+			return true;
+		}
+		return false;
+	}
+	
+	protected String getRunTaskkey(String category,String step)
+	{
+		return  category + ":" + step +":in:1";
+	}
+	
+	protected String getRedoTaskkey(String category,String step)
+	{
+		return  category + ":" + step +":in:2";
 	}
 	
 	@Override
@@ -186,7 +213,9 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				
 		if(!StringUtils.isEmpty(orderTaskInDef.getRunExpress()))
 		{
-			if(!cronMap.containsKey(orderFlowStepdef.getStepId()+"in:1"))
+			String key =this.getRunTaskkey(orderFlowStepdef.getCatetory(),orderFlowStepdef.getStepId());
+			
+			if(!cronMap.containsKey(key))
 			{
 				orderTaskPool = new OrderTaskPool(orderTaskInDef.getInitThreadNumber(),orderTaskInDef.getMaxThreadNumber(),orderTaskInDef.getKeepAliveTime(),orderTaskInDef.getQueneSize());
 				//创建线程任务；
@@ -204,13 +233,14 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				taskObject.setOrderDefService(orderDefService);
 				taskObject.setRestTemplate(restTemplate);
 				scheduler.schedule(taskObject, trigger);
-				cronMap.put(orderFlowStepdef.getStepId()+"in:1", taskObject);
+				cronMap.put(key, taskObject);
 			}
 		}
 		
 		if(!StringUtils.isEmpty(orderTaskInDef.getRetryExpress()))
 		{
-			if(!cronMap.containsKey(orderFlowStepdef.getStepId()+"in:2"))
+			String key =this.getRedoTaskkey(orderFlowStepdef.getCatetory(),orderFlowStepdef.getStepId());
+			if(!cronMap.containsKey(key))
 			{
 				if(orderTaskPool==null)
 				{
@@ -230,7 +260,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				taskObject.setRestTemplate(restTemplate);
 				taskObject.setTaskImmediateNotifyUrl(orderTaskRunningNotifyUrl);
 				scheduler.schedule(taskObject, trigger);
-				cronMap.put(orderFlowStepdef.getStepId()+"in:2", taskObject);
+				cronMap.put(key, taskObject);
 			}
 		}
 		

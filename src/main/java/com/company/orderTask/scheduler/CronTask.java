@@ -25,7 +25,10 @@ public class CronTask extends OrderBaseTask {
 		try {
 			//log.debug("sehcduler cron task:"  + this.orderFlowStepdef.getCatetory());
 			GetSchedulerRunnable getSchedulerRunnable = new GetSchedulerRunnable(this);
-			this.schedulerThreadPool.executeTask(getSchedulerRunnable);
+			if(schedulerThreadPool.getWorkQueueFreeSize()>0)
+			{
+				this.schedulerThreadPool.executeTask(getSchedulerRunnable);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

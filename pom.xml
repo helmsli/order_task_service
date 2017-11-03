@@ -5,7 +5,7 @@
 
 	<groupId>com.company</groupId>
 	<artifactId>order_task_service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>order_task_service</name>

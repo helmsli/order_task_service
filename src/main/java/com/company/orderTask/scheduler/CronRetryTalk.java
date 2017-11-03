@@ -18,7 +18,10 @@ public class CronRetryTalk extends CronTask {
 		try {
 			//log.debug("sehcduler cron task:"  + this.orderFlowStepdef.getCatetory());
 			RedoOrderTask redoOrderTask = new RedoOrderTask(this);
-			this.schedulerThreadPool.executeTask(redoOrderTask);
+			if(this.schedulerThreadPool.getWorkQueueFreeSize()>0)
+			{
+				this.schedulerThreadPool.executeTask(redoOrderTask);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
