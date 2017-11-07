@@ -119,14 +119,18 @@
 			<artifactId>orderDb</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/orderDb_1.0.0.5.jar</systemPath>
+			<systemPath>${basedir}/lib/order_Db_1.0.10.jar</systemPath>
 		</dependency>
+		
+		
+		
+		
 		<dependency>
 			<groupId>com</groupId>
 			<artifactId>orderTaskNotify</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/orderTaskNotify_0.0.0.1.jar</systemPath>
+			<systemPath>${basedir}/lib/orderTaskNotify_0.0.0.2.jar</systemPath>
 		</dependency>
 
 		<dependency>

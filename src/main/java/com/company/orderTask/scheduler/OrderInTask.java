@@ -11,6 +11,7 @@ import com.company.orderTask.domain.OrderTaskInDef;
 import com.company.orderTask.domain.OrderTaskRunInfo;
 import com.xinwei.nnl.common.domain.JsonRequest;
 import com.xinwei.nnl.common.domain.ProcessResult;
+import com.xinwei.nnl.common.util.JsonUtil;
 import com.xinwei.orderDb.domain.OrderFlowStepdef;
 import com.xinwei.orderDb.domain.OrderMain;
 import com.xinwei.orderDb.domain.StepJumpDef;
@@ -104,7 +105,18 @@ public class OrderInTask extends OrderBaseTask {
 				 else
 				 {
 					 OrderFlowStepdef nextOrderFlowStepdef= this.getOrderDefService().getOrderStepDef(this.orderFlowStepdef.getCatetory(), stepJumpDef.getNextStep(), ""); 
-					 processResult = this.dbOrderTaskService.jumpToNextStep(orderMain, nextOrderFlowStepdef,this.orderTaskInDef);
+					 OrderTaskInDef nextOrderTaskInDef = null;
+					 if(!StringUtils.isEmpty(nextOrderFlowStepdef.getRunInfo()))
+					 {
+						 nextOrderTaskInDef = JsonUtil.fromJson(nextOrderFlowStepdef.getTaskIn(),OrderTaskInDef.class);
+					 }
+					 else
+					 {
+						 nextOrderTaskInDef = new OrderTaskInDef();
+						 nextOrderTaskInDef.setCategory(OrderTaskInDef.catogory_manual);
+					 }
+					 
+					 processResult = this.dbOrderTaskService.jumpToNextStep(orderMain, nextOrderFlowStepdef,nextOrderTaskInDef);
 					 if(processResult.getRetCode() == OrderTaskConst.RESULT_Success&&
 							 !StringUtils.isEmpty(nextOrderFlowStepdef.getTaskIn()))
 					 {
