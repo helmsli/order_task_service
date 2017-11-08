@@ -116,7 +116,7 @@ public class OrderInTask extends OrderBaseTask {
 						 nextOrderTaskInDef.setCategory(OrderTaskInDef.catogory_manual);
 					 }
 					 
-					 processResult = this.dbOrderTaskService.jumpToNextStep(orderMain, nextOrderFlowStepdef,nextOrderTaskInDef);
+					 processResult = this.dbOrderTaskService.jumpToNextStep(orderMain, nextOrderFlowStepdef,nextOrderTaskInDef,processResult);
 					 if(processResult.getRetCode() == OrderTaskConst.RESULT_Success&&
 							 !StringUtils.isEmpty(nextOrderFlowStepdef.getTaskIn()))
 					 {

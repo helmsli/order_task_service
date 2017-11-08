@@ -190,7 +190,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 				}
 			}
 			//如果步骤的runin信息不为空
-			if(!StringUtils.isEmpty(orderFlowStepdef.getRunInfo()))
+			if(!StringUtils.isEmpty(orderFlowStepdef.getTaskIn()))
 			{
 				OrderTaskInDef orderTaskInDef = JsonUtil.fromJson(orderFlowStepdef.getTaskIn(),OrderTaskInDef.class);
 				createCronTaskIn(orderFlowStepdef,orderTaskInDef);

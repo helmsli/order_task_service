@@ -130,7 +130,7 @@
 			<artifactId>orderTaskNotify</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/orderTaskNotify_0.0.0.2.jar</systemPath>
+			<systemPath>${basedir}/lib/orderTaskNotify_0.0.0.3.jar</systemPath>
 		</dependency>
 
 		<dependency>
