@@ -12,6 +12,7 @@ import com.company.orderTask.domain.OrderTaskRunInfo;
 import com.xinwei.nnl.common.domain.JsonRequest;
 import com.xinwei.nnl.common.domain.ProcessResult;
 import com.xinwei.nnl.common.util.JsonUtil;
+import com.xinwei.orderDb.domain.OrderFlow;
 import com.xinwei.orderDb.domain.OrderFlowStepdef;
 import com.xinwei.orderDb.domain.OrderMain;
 import com.xinwei.orderDb.domain.StepJumpDef;
@@ -101,6 +102,26 @@ public class OrderInTask extends OrderBaseTask {
 				 if(stepJumpDef.getNextStep().compareToIgnoreCase(this.orderTaskRunInfo.getCurrentStep())==0)
 				 {
 					 //等待超时，重新调度，不需要做
+					 if(processResult.getRetCode()!=0)
+					 {
+						 //失败，更新订单信息；
+						 try {
+							OrderFlow orderFlow = new OrderFlow();
+							 orderFlow.setCurrentStatus(OrderFlow.STATUS_running);
+							 orderFlow.setOrderId(orderTaskRunInfo.getOrderId());
+							 orderFlow.setFlowId(orderTaskRunInfo.getFlowId());
+							 orderFlow.setStepId(orderTaskRunInfo.getCurrentStep());
+							 orderFlow.setRetCode(String.valueOf(processResult.getRetCode()));
+							 if(!StringUtils.isEmpty(processResult.getRetMsg()))
+							 {
+								 orderFlow.setRetMsg(processResult.getRetMsg().substring(0,128));
+							 }
+							 this.dbOrderTaskService.updateOrderFlowStatus(orderFlow);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					 }
 				 }
 				 else
 				 {

@@ -119,12 +119,12 @@
 			<artifactId>orderDb</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/order_Db_1.0.10.jar</systemPath>
+			<systemPath>${basedir}/lib/orderDb_1.0.1.0.jar</systemPath>
 		</dependency>
-		
-		
-		
-		
+
+
+
+
 		<dependency>
 			<groupId>com</groupId>
 			<artifactId>orderTaskNotify</artifactId>
@@ -149,6 +149,39 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 
 			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<!-- delete file="${project.build.directory}/classes/jdbc.properties" 
+									/ <copy file="${project.build.outputDirectory}/application.properties" tofile="${project.build.directory}/application.properties" 
+									/> <copy file="${project.build.outputDirectory}/application.yml" tofile="${project.build.directory}/application.yml" 
+									/> -->
+								<copy todir="${project.build.directory}" overwrite="true">
+									<fileset dir="${project.build.outputDirectory}">
+										<include name="**/*.properties" />
+										<include name="*.yml" />
+										<include name="*.sh" />
+									</fileset>
+								</copy>
+								<replace token="xxxx.jar" value="${project.build.finalName}.jar">
+									<fileset dir="${project.build.directory}">
+										<include name="*.sh" />
+									</fileset>
+								</replace>
+
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 		<!-- 引入第三方包，打包需要引入 -->
 		<resources>
@@ -164,7 +197,8 @@
 				<targetPath>BOOT-INF/classes/</targetPath>
 			</resource>
 		</resources>
-
+		<directory>target/${project.version}</directory>
+		<outputDirectory>target/classes</outputDirectory>
 	</build>
 
 
