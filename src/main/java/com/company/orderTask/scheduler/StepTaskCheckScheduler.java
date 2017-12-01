@@ -39,7 +39,10 @@ public class StepTaskCheckScheduler implements InitializingBean{
 	
 	//该进程调度哪种类型的订单
 	@Value("${order.task.category}")
-	private String orderTaskCategory;
+	private String orderTaskCategoryList;
+	
+	
+	//private String orderTaskCategory;
 	
 	@Value("${order.task.redoNumberOnecTimes:1000}")
 	private int redoNumberOnecTime;
@@ -96,7 +99,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 			if(!isInit)
 			{
 				try {
-					initStepRunInTask();
+					initStepRunInTaskList();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -163,7 +166,26 @@ public class StepTaskCheckScheduler implements InitializingBean{
 		return stepMap;
 	}
 	
-	protected boolean initStepRunInTask()
+	protected boolean initStepRunInTaskList()
+	{
+		boolean isRet = true;
+		String[] taskCategorys = StringUtils.split(this.orderTaskCategoryList, ",");
+		for(int i=0;i<taskCategorys.length;i++)
+		{
+			if(!initStepRunInTask(taskCategorys[i]))
+			{
+				isRet = false;
+			}
+			
+		}
+		if(isRet)
+		{
+			isInit = true;
+		}
+		return isRet;
+	}
+	
+	protected boolean initStepRunInTask(String orderTaskCategory)
 	{
 		//获取配置文件的步骤信息，格式为，分割等多个步骤，如果填写all为全部不厚
 		Map<String,String> stepMaps = this.getScheculerStep();
@@ -198,7 +220,7 @@ public class StepTaskCheckScheduler implements InitializingBean{
 			}
 		}
 		//OrderTalkInDef
-		isInit = true;
+		
 		return true;
 	}
 	/**

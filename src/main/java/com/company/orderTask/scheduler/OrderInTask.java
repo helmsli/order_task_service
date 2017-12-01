@@ -77,6 +77,7 @@ public class OrderInTask extends OrderBaseTask {
 			if(orderTaskRunInfo.getExpireTime() >0 && System.currentTimeMillis()>orderTaskRunInfo.getExpireTime())
 			{
 				//通知运维
+				log.debug("task expire:" + orderTaskRunInfo.toString());
 				return ;
 			}
 			
@@ -92,6 +93,7 @@ public class OrderInTask extends OrderBaseTask {
 					orderMain.getFlowId().compareToIgnoreCase(orderTaskRunInfo.getFlowId())!=0)
 			{
 				//状态不正确；
+				log.error("error status:" + orderMain.toString() + orderTaskRunInfo.toString());
 				return;
 			}
 			//运行任务
@@ -114,7 +116,7 @@ public class OrderInTask extends OrderBaseTask {
 							 orderFlow.setRetCode(String.valueOf(processResult.getRetCode()));
 							 if(!StringUtils.isEmpty(processResult.getRetMsg()))
 							 {
-								 orderFlow.setRetMsg(processResult.getRetMsg().substring(0,128));
+								 orderFlow.setRetMsg(processResult.getRetMsg().substring(0,1000));
 							 }
 							 this.dbOrderTaskService.updateOrderFlowStatus(orderFlow);
 						} catch (Exception e) {
