@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.company.orderTask.domain.OrderTaskRunInfo;
+import com.company.orderTask.service.impl.ControllerUtils;
 
 public class CronRetryTalk extends CronTask {
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -55,10 +56,12 @@ public class CronRetryTalk extends CronTask {
 				{
 					redoNumberOnecTime = 1000;
 				}
+				log.debug("retry cron:" + orderFlowStepdef.toString() + ":" +redoNumberOnecTime + ":"+timeoutMills + ":"+ retryTimes);
 				this.redisOrderTaskService.redoTimeoutTask(orderFlowStepdef.getCatetory(), orderFlowStepdef.getStepId(), this.redoNumberOnecTime, timeoutMills, retryTimes);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				log.error(ControllerUtils.getStringFromException(e));
 			}
 		}
 		

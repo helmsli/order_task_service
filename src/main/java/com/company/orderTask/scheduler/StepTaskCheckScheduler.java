@@ -172,9 +172,15 @@ public class StepTaskCheckScheduler implements InitializingBean{
 		String[] taskCategorys = StringUtils.split(this.orderTaskCategoryList, ",");
 		for(int i=0;i<taskCategorys.length;i++)
 		{
-			if(!initStepRunInTask(taskCategorys[i]))
-			{
-				isRet = false;
+			try {
+				if(!initStepRunInTask(taskCategorys[i]))
+				{
+					isRet = false;
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				log.error("init step error:"+taskCategorys[i]);
+				e.printStackTrace();
 			}
 			
 		}

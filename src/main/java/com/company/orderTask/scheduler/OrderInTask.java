@@ -9,6 +9,7 @@ import com.company.orderAccess.serverManager.impl.RedisOrderTaskService;
 import com.company.orderTask.OrderTaskConst;
 import com.company.orderTask.domain.OrderTaskInDef;
 import com.company.orderTask.domain.OrderTaskRunInfo;
+import com.company.orderTask.service.impl.ControllerUtils;
 import com.xinwei.nnl.common.domain.JsonRequest;
 import com.xinwei.nnl.common.domain.ProcessResult;
 import com.xinwei.nnl.common.util.JsonUtil;
@@ -86,6 +87,8 @@ public class OrderInTask extends OrderBaseTask {
 			if(orderMain==null)
 			{
 				this.redisOrderTaskService.delRedoTask(orderTaskRunInfo);
+				log.error("error status:order is null" );
+				
 				return;
 			}
 			if(orderMain.getCurrentStatus()!=orderTaskRunInfo.getCurrentStatus() ||
@@ -99,6 +102,7 @@ public class OrderInTask extends OrderBaseTask {
 			//运行任务
 			 try {
 				 ProcessResult processResult= this.runInTask();
+				 this.log.debug(processResult.toString());
 				 StepJumpDef stepJumpDef = this.orderFlowStepdef.getStepJumpDef(processResult.getRetCode());
 				 //如果状态没有跳转，说明运行失败
 				 if(stepJumpDef.getNextStep().compareToIgnoreCase(this.orderTaskRunInfo.getCurrentStep())==0)
@@ -109,6 +113,7 @@ public class OrderInTask extends OrderBaseTask {
 						 //失败，更新订单信息；
 						 try {
 							OrderFlow orderFlow = new OrderFlow();
+							orderFlow.setCatetory(orderMain.getCatetory());
 							 orderFlow.setCurrentStatus(OrderFlow.STATUS_running);
 							 orderFlow.setOrderId(orderTaskRunInfo.getOrderId());
 							 orderFlow.setFlowId(orderTaskRunInfo.getFlowId());
@@ -122,6 +127,7 @@ public class OrderInTask extends OrderBaseTask {
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+							log.error(ControllerUtils.getStringFromException(e));
 						}
 					 }
 				 }
@@ -147,16 +153,21 @@ public class OrderInTask extends OrderBaseTask {
 						 OrderRunInTaskNotify orderRunInTaskNotify = new OrderRunInTaskNotify(orderTaskRunInfo,this.restTemplate,this.taskImmediateNotifyUrl);
 						 orderRunInTaskNotify.run();
 					 }
-					 this.redisOrderTaskService.delRedoTask(orderTaskRunInfo);
-				 }
+					 if(processResult.getRetCode() == OrderTaskConst.RESULT_Success)
+					 {
+						 this.redisOrderTaskService.delRedoTask(orderTaskRunInfo);
+					 }
+				}
 				 
 			 } catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				log.error(ControllerUtils.getStringFromException(e));
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.error(ControllerUtils.getStringFromException(e));
 		}
 		 
 		

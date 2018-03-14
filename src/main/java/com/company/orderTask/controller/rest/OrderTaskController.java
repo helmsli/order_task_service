@@ -17,11 +17,11 @@ import com.xinwei.nnl.common.domain.JsonRequest;
 import com.xinwei.nnl.common.domain.ProcessResult;
 
 @RestController
-@RequestMapping("/orderId")
+@RequestMapping("/orderTask")
 public class OrderTaskController {
 	@Resource(name="stepTaskCheckScheduler")
 	private StepTaskCheckScheduler stepTaskCheckScheduler;
-	@RequestMapping(method = RequestMethod.POST,value = "{category}/{dbId}/{orderId}/{stepid}/runOrderTask")
+	@RequestMapping(method = RequestMethod.POST,value = "{category}/{dbId}/{orderId}/{stepId}/runOrderTask")
 	public  ProcessResult runTaskImmediate(@PathVariable String category,@PathVariable String dbId,@PathVariable String orderId,@PathVariable String stepId,@RequestBody OrderTaskRunInfo orderTaskRunInfo) {
 		ProcessResult processResult =new ProcessResult();
 		processResult.setRetCode(OrderTaskConst.RESULT_Success);
