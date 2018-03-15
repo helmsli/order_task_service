@@ -3,6 +3,7 @@ package com.company.orderTask.controller.rest;
 import javax.annotation.Resource;
 
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,5 +34,31 @@ public class OrderTaskController {
 		}
 		return processResult;
 	}
+    
+	@GetMapping(value = "{category}/{stepId}/runManual")
+	public  ProcessResult runTaskImmediateByManual(@PathVariable String category,@PathVariable String stepId) {
+		ProcessResult processResult =new ProcessResult();
+		processResult.setRetCode(OrderTaskConst.RESULT_Success);
+		try {
+			stepTaskCheckScheduler.immediateRunTask(category, stepId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return processResult;
+	}
 	
+	@GetMapping(value = "{category}/{stepId}/retryManual")
+	public  ProcessResult retryTaskImmediateByManual(@PathVariable String category,@PathVariable String stepId) {
+		ProcessResult processResult =new ProcessResult();
+		processResult.setRetCode(OrderTaskConst.RESULT_Success);
+		try {
+			stepTaskCheckScheduler.immediateRunRedoCron(category, stepId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return processResult;
+	}
+
 }

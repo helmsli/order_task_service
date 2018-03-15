@@ -135,7 +135,7 @@
 			<artifactId>orderTaskNotify</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/orderTaskNotify_0.0.0.10.jar</systemPath>
+			<systemPath>${basedir}/lib/orderTaskNotify_0.0.0.12.jar</systemPath>
 		</dependency>
 <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
 <dependency>

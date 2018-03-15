@@ -133,6 +133,19 @@ public class StepTaskCheckScheduler implements InitializingBean{
 		return false;
 	}
 	
+	public boolean immediateRunRedoCron(String category,String step)
+	{
+		String key = this.getRedoTaskkey(category, step);
+		if(this.cronMap.containsKey(key))
+		{
+			CronTask cronTask = this.cronMap.get(key);
+			cronTask.run();
+			return true;
+		}
+		return false;
+	}
+	
+	
 	protected String getRunTaskkey(String category,String step)
 	{
 		return  category + ":" + step +":in:1";
