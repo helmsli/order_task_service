@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 
 
 
@@ -51,6 +52,10 @@ public class RestConfiguration {
 	@Value("${rest.connWaitTimeout:15000}")
 	private int connWaitTimeout;
 	
+	@Bean
+	public AlwaysSampler defaultSampler() {
+		return new AlwaysSampler();
+	}
 	
     @Bean
     public RestTemplate restTemplate() {
