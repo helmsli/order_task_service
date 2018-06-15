@@ -210,7 +210,7 @@
 									/> <copy file="${project.build.outputDirectory}/application.yml" tofile="${project.build.directory}/application.yml" 
 									/> -->
 								<copy todir="${project.build.directory}" overwrite="true">
-									<fileset dir="${basedir}/src/main/resources">
+									<fileset dir="src/main/resources">
 										<include name="**/*.properties" />
 										<include name="*.yml" />
 										<include name="*.sh" />
